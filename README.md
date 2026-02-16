@@ -19,11 +19,13 @@ This pipeline is ideal for:
 
 - **Automatic Speech Recognition**: Uses Whisper (including Kazakh-optimized models) for high-quality transcription
 - **Azure Speech Services Integration**: Alternative recognition option with Azure Cognitive Services
+- **Yandex SpeechKit Integration**: Additional ASR option with Yandex Cloud services
 - **Grammar Correction**: GPT-4-powered grammar correction tailored for Kazakh language
 - **Subtitle Generation**: Supports both WebVTT and SubRip (SRT) formats
 - **Video/Audio Processing**: Automatic conversion from video to audio format
 - **Batch Processing**: Process multiple files efficiently
 - **Flexible Pipeline**: Use individual components or the full end-to-end workflow
+- **Additional Tools**: Comprehensive toolset in `tools/` directory for various speech processing tasks
 
 ## Architecture
 
@@ -82,22 +84,24 @@ pip install -r requirements.txt
 
 ### Configure API Keys
 
-Copy the example environment file and add your API keys:
+Set up environment variables for API access:
 
 ```bash
-cp .env.example .env
+export OPENAI_API_KEY=your_openai_api_key_here
+export AZURE_SPEECH_KEY=your_azure_subscription_key_here
+export AZURE_SPEECH_REGION=westeurope
+export SPEECH_KEY=your_azure_speech_key  # Alternative for Azure
+export SPEECH_REGION=your_region
+export S3_BUCKET=your_s3_bucket  # For Yandex Cloud
+export S3_PREFIX=your_s3_prefix
+export S3_PREFIX_LOG=your_log_prefix
+export S3_PREFIX_OUT=your_output_prefix
+export S3_KEY=your_s3_access_key
+export S3_SECRET=your_s3_secret_key
+export API_SECRET=your_yandex_api_key
 ```
 
-Edit `.env` with your credentials:
-
-```ini
-[DEFAULT]
-OPENAI_API_KEY=your_openai_api_key_here
-
-[AZURESPEECH]
-AZURE_SUBSCRIPTION_KEY=your_azure_subscription_key_here
-AZURE_SERVICE_REGION=westeurope
-```
+Alternatively, create a `.env` file and use a tool like `python-dotenv` to load these variables.
 
 ## Usage
 
@@ -193,8 +197,61 @@ kazakh-speech-pipeline/
 ├── utils.py                # Utility functions
 ├── requirements.txt        # Python dependencies
 ├── .env.example            # Environment variables template
+├── tools/                  # Additional speech processing tools
+│   ├── whisper.py          # Whisper transcription utilities
+│   ├── whisper.sh          # Whisper shell script
+│   ├── whisper-kazakh-for-ansible.py  # Ansible integration
+│   ├── speech.py           # Speech processing utilities
+│   ├── caption_helper.py   # Caption formatting helpers
+│   ├── user_config_helper.py  # Configuration management
+│   ├── helper.py           # General helper functions
+│   ├── speechkit.py        # Yandex SpeechKit utilities
+│   ├── yandex-speechkit.py # Yandex SpeechKit integration
+│   ├── correct.py          # Correction utilities
+│   ├── grammar.py          # Grammar correction tools
+│   ├── onegrammar_kz.py    # Kazakh-specific grammar correction
+│   ├── post_process_with_gpt.py  # GPT post-processing
+│   ├── smallcorrect.py     # Lightweight correction
+│   ├── srt-parsing.py      # SRT parser
+│   ├── srt2json.py         # SRT to JSON converter
+│   ├── json2srt_vtt.py     # JSON to SRT/VTT converter
+│   ├── utils.py            # Utility functions
+│   └── main.py             # Tool orchestrator
+├── docs/                   # Documentation
+│   ├── price-for-ASR.md    # ASR pricing info (Kazakh)
+│   └── price-for-ASR-eng.md  # ASR pricing info (English)
 └── README.md               # This file
 ```
+
+## Tools Directory
+
+The `tools/` directory contains additional utilities for speech processing and subtitle management:
+
+### Speech Processing Tools
+- **whisper.py, whisper.sh, whisper-kazakh-for-ansible.py**: Various Whisper transcription utilities
+- **yandex-speechkit.py**: Yandex Cloud SpeechKit integration for ASR
+- **speechkit.py**: SpeechKit wrapper utilities
+
+### Grammar & Correction
+- **grammar.py**: Multi-file grammar correction
+- **onegrammar_kz.py**: Kazakh-specific batch grammar correction
+- **correct.py**: Advanced correction utilities
+- **smallcorrect.py**: Lightweight correction tool
+- **post_process_with_gpt.py**: GPT-powered post-processing
+
+### Subtitle Tools
+- **srt-parsing.py**: SRT file parser
+- **srt2json.py**: Convert SRT to JSON format
+- **json2srt_vtt.py**: Convert JSON to SRT or VTT format
+- **caption_helper.py**: Caption formatting and timing utilities
+
+### Configuration & Helpers
+- **user_config_helper.py**: User configuration management
+- **helper.py**: General helper functions
+- **utils.py**: Utility functions
+- **main.py**: Tool orchestrator
+
+See `docs/price-for-ASR.md` and `docs/price-for-ASR-eng.md` for information on ASR service pricing.
 
 ## API Keys and Services
 
@@ -204,7 +261,10 @@ Required for grammar correction features. Get your API key from [OpenAI Platform
 ### Azure Speech Services (Optional)
 Alternative to Whisper for speech recognition. More information at [Azure Cognitive Services](https://azure.microsoft.com/en-us/services/cognitive-services/speech-services/).
 
-**Note**: The `azure-speech.py` script is based on Microsoft's sample code and requires additional helper modules (`caption_helper.py`, `helper.py`, `user_config_helper.py`) from the [Azure Cognitive Services Speech SDK samples](https://github.com/Azure-Samples/cognitive-services-speech-sdk/tree/master/samples/python/console). Download these files if you plan to use Azure Speech Services.
+### Yandex SpeechKit (Optional)
+Another alternative for speech recognition. Available through [Yandex Cloud](https://cloud.yandex.com/en/services/speechkit).
+
+**Note**: The Azure and Yandex tools require additional configuration as described in their respective documentation.
 
 ## Models
 
