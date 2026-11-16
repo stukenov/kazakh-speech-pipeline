@@ -4,6 +4,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![CI](https://github.com/stukenov/kazakh-speech-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/stukenov/kazakh-speech-pipeline/actions/workflows/ci.yml)
+[![Whisper](https://img.shields.io/badge/ASR-Whisper-412991.svg)](https://github.com/openai/whisper)
+[![GPT-4](https://img.shields.io/badge/grammar-GPT--4-74aa9c.svg)](https://platform.openai.com/)
 
 ## Overview
 
@@ -32,6 +35,16 @@ This pipeline is ideal for:
 ```
 Input (Video/Audio) → Audio Extraction → Speech Recognition → Grammar Correction → Output (Text/Subtitles)
 ```
+
+### Pipeline Stages
+
+The end-to-end flow mirrors the orchestration in `main.py`:
+
+1. **Audio extraction** — `convert.py` extracts 16kHz mono WAV audio from source video files (`content/video` → `content/audio`).
+2. **Speech recognition (ASR)** — transcribe audio to text/subtitles using Whisper (`2-whisper-kazakh.py`, Kazakh-optimized `anuragshas/whisper-large-v2-kk`), or the alternative Azure (`azure-speech.py`) and Yandex SpeechKit backends.
+3. **Subtitle parsing** — `srt2json.py` converts SRT captions into structured JSON with timing preserved (`content/captions` → JSON).
+4. **Grammar correction** — `onegrammar.py` / `grammar.py` send sentence-aligned batches to GPT-4 with a Kazakh-specific prompt, returning grammatically corrected text while keeping time codes intact.
+5. **Output** — corrected transcripts and subtitles are written back to `content/captions`; `correct.py` optionally merges segments and fixes timing for clean SRT/WebVTT output.
 
 ### Pipeline Components
 
@@ -301,6 +314,14 @@ device = torch.device('cpu')
 **API rate limits:**
 - Implement delays between API calls
 - Use batch processing for grammar correction
+
+## Related projects
+
+Part of an open-source Kazakh-language AI stack:
+
+- [kazakh-nlp-toolkit](https://github.com/stukenov/kazakh-nlp-toolkit) — NLP toolkit for Kazakh text processing
+- [slm](https://github.com/stukenov/slm) — small language model work for low-resource languages
+- [turkic-tts](https://github.com/stukenov/turkic-tts) — text-to-speech for Turkic languages
 
 ## Contributing
 
